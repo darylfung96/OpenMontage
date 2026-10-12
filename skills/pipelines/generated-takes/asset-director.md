@@ -17,9 +17,21 @@ money, and the only one where the order of operations is non-negotiable.
 
 ## Process
 
-### 1. Stills First — Then Stop And Show Them
+### 1. Stills First — Approve The Still Batch, Then Show It
 
-Fire every still in the plan through `runninghub_image`:
+The still batch is a paid run and gets its own approval, exactly like a take batch.
+Nothing fires on the strength of the scene-plan gate.
+
+Present the still batch:
+
+```
+STILL BATCH — ask for approval
+├── Beat 1 still: character + jar, neutral pose — est. ~25 coins
+├── Beat 2 still: character + jar, turned three-quarter — est. ~25 coins
+└── Total: ~75 coins · wallet $0.00 expected
+```
+
+Fire only the approved stills through `runninghub_image`:
 
 - image1 is the character reference, image2+ are the items or scenes being worked.
 - Up to five references per still; a local path is uploaded automatically.
@@ -59,7 +71,7 @@ wanted.
 
 ### 4. Record Every Receipt
 
-After each run, write into the asset manifest:
+After each paid run — stills and takes alike — write into the asset manifest:
 
 - `task_id`, coins consumed (`COINS:`), wallet charge (`COST:`), billing mode,
 - the output path and probed duration/resolution,
@@ -87,14 +99,16 @@ path to keep a batch moving.
 
 ### 7. Quality Gate
 
+- the still batch was approved before any still fired,
 - stills were reviewed before any take fired,
 - every take in the batch was explicitly approved before it ran,
-- every take has a recorded receipt,
+- every paid run has a recorded receipt,
 - the manifest lists files that actually exist on disk,
 - any fallback engine use was approved and recorded.
 
 ## Common Pitfalls
 
+- Firing stills on the strength of the scene-plan approval. They are paid.
 - Firing takes and stills in one batch. The still is the cheap decision point.
 - Treating a coin estimate as an approval.
 - Re-firing a timed-out take. It is already running and already paid for.
@@ -104,7 +118,7 @@ path to keep a batch moving.
 
 ## Gate Reminder (Binding)
 
-This stage gates on human approval (`human_approval_default: true`). Each paid batch is
-its own approval: present the batch, checkpoint with `status="awaiting_human"`, and
-**END YOUR TURN**. Do not fire a second batch on the strength of the first batch's
-approval, even when the first batch succeeded cleanly.
+This stage gates on human approval (`human_approval_default: true`). Each paid batch —
+stills or takes — is its own approval: present the batch, checkpoint with
+`status="awaiting_human"`, and **END YOUR TURN**. Do not fire a second batch on the
+strength of the first batch's approval, even when the first batch succeeded cleanly.

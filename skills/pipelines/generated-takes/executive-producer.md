@@ -42,6 +42,8 @@ the node maps, limits, and measured costs. The rules that must not be broken:
 - **Report both lines after every run.** `COINS:` and `COST:` from the task receipt go
   into the asset manifest and the spend ledger. A take without a receipt is unrecorded
   spend, which is the one thing this pipeline exists to prevent.
+- **Every paid batch is approved, including stills.** A still costs ~25 coins; the
+  scene-plan gate approves the plan, not the spend.
 - **Failures before render cost nothing.** A rejected node map is free; do not treat it
   as spend and do not re-fire blindly.
 - **A timeout is not a failure to re-fire.** The tool returns the `taskId`; recover the
@@ -55,7 +57,7 @@ the node maps, limits, and measured costs. The rules that must not be broken:
 |---|---|---|
 | proposal | approval | Engine per stage, coin estimate, delivery shape, beat grid, audio plan |
 | scene_plan | approval | Per-beat still spec, motion prompt, frames, steps, substrate |
-| assets | approval | Stills before takes, per-take approval, receipts recorded |
+| assets | approval | Still batch approved, stills reviewed, then take batch approved; receipts recorded |
 | edit | auto | Trim takes to the beat grid, hero take selection |
 | compose | auto | Native audio vs music bed, captions, ffprobe validation |
 | publish | approval | Master + derivatives, spend ledger reconciliation |
