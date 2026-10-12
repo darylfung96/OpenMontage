@@ -86,6 +86,10 @@ ATLASCLOUD_API_KEY=          # Atlas Cloud image/video gateway
 KLING_API_KEY=               # Official Kling video, image, TTS, avatar, lip sync
 KLING_API_BASE_URL=          # Optional; default https://api-singapore.klingai.com
 
+# RUNNINGHUB (Qwen-Image-2.1 stills -> DMAD MiniMax H3 motion)
+RUNNINGHUB_API_KEY=          # Published AI Apps + workflow tasks; personal key bills coins, shared key bills wallet
+RUNNINGHUB_API_HOST=         # Optional; default https://www.runninghub.ai
+
 # VOLCENGINE ARK DIRECT SEEDANCE 2.0 / 2.5 API
 ARK_API_KEY=                 # API key body only; do not include the "Bearer " prefix
 
@@ -495,6 +499,44 @@ machine-readable Atlas page and should be reconfirmed before a paid batch.
 - `kling_tts` requires an explicit `voice_id`; OpenMontage does not guess a default official voice.
 - `kling_avatar` and `kling_lip_sync` register under the existing `avatar` capability and coexist with local SadTalker/Wav2Lip tools. Current avatar pipelines must opt into them explicitly; registry discovery alone does not replace local tools.
 - Official Kling audio effects and video effects are documented but intentionally not registered as OpenMontage tools yet, because current pipelines do not have a stable sound-effects or video-effects capability slot for them.
+
+---
+
+### RunningHub — AI App API (Qwen-Image-2.1 stills + DMAD MiniMax H3 motion)
+
+> **App host, not a model API.** `runninghub_image` and `runninghub_video` run published RunningHub applications by `webappId` and can only set the nodes the app's author exposed. This is the still+motion chain used in production: the Qwen-Image-2.1 edit app produces stills, the DMAD MiniMax H3 app animates one.
+
+**Tools unlocked:** `runninghub_image`, `runninghub_video`
+**Env vars:** `RUNNINGHUB_API_KEY`, optional `RUNNINGHUB_API_HOST`
+
+#### Setup
+
+1. Create a RunningHub account and a key in the console Keys page.
+2. Add to `.env`:
+   ```bash
+   RUNNINGHUB_API_KEY=your-key-here
+   # Optional, defaults to the .ai site:
+   RUNNINGHUB_API_HOST=https://www.runninghub.ai
+   ```
+
+#### What It Is Best For
+
+- Reference-conditioned stills via `runninghub_image` (Qwen-Image-2.1 edit app `2103143960360300545`): image1 is the character reference, image2+ the items or scenes
+- Motion via `runninghub_video` (DMAD MiniMax H3 app `2106414322893619202`): 1344x768 24fps takes that carry their own generated audio
+- Coin-billed rendering on a personal key with measured per-take receipts
+
+#### Billing
+
+Billing follows the **key**, not the account: a personal (membership) key bills RH Coins, a shared key bills the account wallet (~$0.0002/s of GPU runtime measured). Both tools report the task receipt (`consumeCoins` or `consumeMoney`) and reconcile `cost_usd` from it, so a coin-billed take costs $0 of wallet while still recording the coins spent.
+
+#### Notes
+
+- The still app is an editor: it requires at least one reference image and exposes five image slots plus one prompt (nodes `470`, `477`, `475`, `2475`, `2476`, prompt `479`).
+- H3 exposes prompt `9`, images `19`-`27`, audios `31`-`34`, frames `35`, steps `11`. Frames are always sent explicitly (`frames / 24` = seconds, app default 124), steps default to 8, and the trained ceiling is 362 frames (~15.1s).
+- The H3 canvas follows the input still, so off-16:9 stills are cover-cropped; the tool warns when it can read the start-still dimensions. Feed a 1344x768 substrate for full framing.
+- H3 output arrives in a MOV container; `runninghub_video` patches the `ftyp` header to MP4 in place, no re-encode.
+- Frames are honoured closely but not exactly (336 requested came back as 345), so trim takes to the beat grid in post.
+- Both tools reject bad node maps before render: AI App validation failures are free.
 
 ---
 
@@ -1448,6 +1490,7 @@ These tools require only FFmpeg or Python packages — no GPU, no API key.
 | **fal.ai** | `FAL_KEY` | `flux_image`, `recraft_image`, `kling_video`, `veo_video`, `seedance_video`, `gemini_omni_fal`, `minimax_fal_video` | Pay-as-you-go |
 | **Atlas Cloud** | `ATLASCLOUD_API_KEY` | `atlas_image`, `atlas_video` | Pay-as-you-go |
 | **Kling Official** | `KLING_API_KEY` | `kling_official_video`, `kling_official_image`, `kling_tts`, `kling_avatar`, `kling_lip_sync` | Pay-as-you-go |
+| **RunningHub** | `RUNNINGHUB_API_KEY` | `runninghub_image`, `runninghub_video` | Coins (personal key) or wallet (shared key) |
 | **Volcengine Ark** | `ARK_API_KEY` | `seedance_ark` | Pay-as-you-go |
 | **MiniMax direct** | `MINIMAX_API_KEY` | `minimax_image`, `minimax_video` | Pay-as-you-go |
 | **OpenAI** | `OPENAI_API_KEY` | `openai_tts`, `openai_image` | Paid only |
@@ -1470,8 +1513,8 @@ How many providers cover each capability:
 
 | Capability | Cloud Providers | Local Providers | Free Options |
 |-----------|----------------|-----------------|--------------|
-| **Image Generation** | FLUX, Kling Official, Grok, Google Imagen, GPT Image 2, Recraft | Local Diffusion | Pexels, Pixabay (stock) |
-| **Video Generation** | Grok, Kling Official, fal.ai, Seedance via Volcengine Ark, Runway, Veo, Gemini Omni, Higgsfield, MiniMax, HeyGen, Tencent Hunyuan, ComfyUI Partner Nodes | WAN, Hunyuan, CogVideo, LTX, ComfyUI WAN, ComfyUI MiniMax H3 | Pexels, Pixabay (stock) |
+| **Image Generation** | FLUX, Kling Official, Grok, Google Imagen, GPT Image 2, Recraft, RunningHub | Local Diffusion | Pexels, Pixabay (stock) |
+| **Video Generation** | Grok, Kling Official, fal.ai, Seedance via Volcengine Ark, Runway, Veo, Gemini Omni, Higgsfield, MiniMax, HeyGen, Tencent Hunyuan, ComfyUI Partner Nodes, RunningHub | WAN, Hunyuan, CogVideo, LTX, ComfyUI WAN, ComfyUI MiniMax H3 | Pexels, Pixabay (stock) |
 | **Text-to-Speech** | Azure AI Speech, ElevenLabs, fish.audio, Google TTS, Kling Official, OpenAI | Piper | Piper, Google free tier, ElevenLabs free tier, Azure free tier, fish.audio s2.1-pro-free |
 | **Music Generation** | ElevenLabs, Suno, Google Lyria | — | ElevenLabs free tier |
 | **Post-Production** | — | FFmpeg (compose, stitch, trim, mix, enhance, grade) | All free |
