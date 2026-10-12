@@ -1,0 +1,224 @@
+name: generated-takes
+version: "1.0"
+description: >
+  Generated-take pipeline for beat-led videos built from stills and motion: character or
+  product beats, ASMR/product scenes, reference-driven recreations, and coin-billed
+  RunningHub chains. Stills come from Qwen-Image-2.1 edit, motion from DMAD MiniMax H3,
+  and every paid run is gated on explicit per-take approval with receipts recorded.
+  Alternative engines (Imagen, Gemini Omni, Veo) route through the same selectors when
+  RunningHub is unavailable or a different look is approved.
+category: generated
+stability: beta
+default_checkpoint_policy: guided
+
+reference_input:
+  supported: true
+  analysis_depth: standard
+  analysis_tools:
+    - video_analyzer
+    - transcript_fetcher
+    - video_downloader
+    - scene_detect
+    - frame_sampler
+
+metadata:
+  default_engine: runninghub
+  chain: qwen-image-2.1-edit -> dmad-minimax-h3
+  billing: coin-first on the personal key; wallet only with explicit per-take approval
+  native_output: 1344x768 landscape, 24 fps, generated audio
+
+orchestration:
+  mode: executive-producer
+  skill: pipelines/generated-takes/executive-producer
+  budget_default_usd: 0.50
+  max_revisions_per_stage: 3
+  max_send_backs: 2
+  max_wall_time_minutes: 60
+
+extensions:
+  custom_scripts: true
+  custom_playbooks: true
+  custom_skills: true
+  custom_tools: false
+
+required_skills:
+  - pipelines/generated-takes/executive-producer
+  - pipelines/generated-takes/proposal-director
+  - pipelines/generated-takes/scene-director
+  - pipelines/generated-takes/asset-director
+  - pipelines/generated-takes/edit-director
+  - pipelines/generated-takes/compose-director
+  - pipelines/generated-takes/publish-director
+  - meta/reviewer
+  - meta/checkpoint-protocol
+
+compatible_playbooks:
+  recommended:
+    - clean-professional
+  also_works:
+    - premium-minimalist
+    - flat-motion-graphics
+  custom_allowed: true
+
+stages:
+  - name: proposal
+    skill: pipelines/generated-takes/proposal-director
+    produces:
+      - proposal_packet
+      - decision_log
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Engine choice is explicit per stage (RunningHub coin chain by default)
+      - Coin estimate covers every still and take at measured rates
+      - Delivery shape is honest about the 362-frame take ceiling
+      - Beat grid and music plan are resolved before any paid run
+    success_criteria:
+      - Schema-valid proposal_packet artifact
+      - At least 2 concept options with different beat structures
+      - Cost estimate states coins and the wallet-equivalent guard
+      - Per-take approval requirement is explicit
+
+  - name: scene_plan
+    skill: pipelines/generated-takes/scene-director
+    required_artifacts_in:
+      - proposal_packet
+    optional_artifacts_in:
+      - video_analysis_brief
+    produces:
+      - scene_plan
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Every beat names its still, motion prompt, frames, and steps
+      - Frames are explicit integers within the trained ceiling
+      - Substrate canvas is 1344x768 or an approved alternative
+      - Start stills are pose-neutral where the beat needs movement
+    success_criteria:
+      - Schema-valid scene_plan artifact
+      - Every beat has frames, a still spec, and a motion spec
+      - Any take over 362 frames is split into sequential takes
+
+  - name: assets
+    skill: pipelines/generated-takes/asset-director
+    required_artifacts_in:
+      - scene_plan
+    optional_artifacts_in:
+      - proposal_packet
+    produces:
+      - asset_manifest
+    required_tools:
+      - runninghub_image
+      - runninghub_video
+    optional_tools:
+      - image_selector
+      - video_selector
+      - google_imagen
+      - gemini_omni_video
+      - veo_video
+      - tts_selector
+    tools_available:
+      - runninghub_image
+      - runninghub_video
+      - image_selector
+      - video_selector
+      - google_imagen
+      - gemini_omni_video
+      - veo_video
+      - tts_selector
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Stills are reviewed before any motion take is fired
+      - Each take was explicitly approved before it ran
+      - Every take receipt (COINS / COST) is recorded in the manifest
+      - Fallback engines were used only when RunningHub was unavailable or approved
+    success_criteria:
+      - Schema-valid asset_manifest artifact
+      - All referenced still and take files exist on disk
+      - Every paid take has a recorded receipt
+
+  - name: edit
+    skill: pipelines/generated-takes/edit-director
+    required_artifacts_in:
+      - scene_plan
+      - asset_manifest
+    optional_artifacts_in:
+      - video_analysis_brief
+    produces:
+      - edit_decisions
+    tools_available:
+      - video_trimmer
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Takes are trimmed to the approved beat grid
+      - Frames returned short or long are corrected in post, not re-fired
+      - Hero takes are selected on motion quality, not convenience
+    success_criteria:
+      - Schema-valid edit_decisions artifact
+      - Every beat maps to a selected take or a recorded replacement
+
+  - name: compose
+    skill: pipelines/generated-takes/compose-director
+    required_artifacts_in:
+      - edit_decisions
+      - asset_manifest
+    optional_artifacts_in:
+      - scene_plan
+      - proposal_packet
+    produces:
+      - render_report
+      - final_review
+    required_tools:
+      - video_compose
+      - audio_mixer
+    optional_tools:
+      - video_stitch
+      - subtitle_gen
+      - audio_enhance
+      - color_grade
+      - pixabay_music
+      - music_library
+    tools_available:
+      - video_compose
+      - audio_mixer
+      - video_stitch
+      - subtitle_gen
+      - audio_enhance
+      - color_grade
+      - pixabay_music
+      - music_library
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Native take audio and the music bed are balanced, not fighting
+      - Captions and overlays stay inside safe zones
+      - Output passes ffprobe validation at the approved shape
+    success_criteria:
+      - Schema-valid render_report artifact
+      - Output file exists and passes ffprobe validation
+
+  - name: publish
+    skill: pipelines/generated-takes/publish-director
+    required_artifacts_in:
+      - render_report
+      - final_review
+    optional_artifacts_in:
+      - proposal_packet
+      - asset_manifest
+    produces:
+      - publish_log
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Master and derivative exports are labeled by shape and use
+      - Spend ledger lists every take's coins and any wallet charge
+      - Delivery location is explicit and durable
+    success_criteria:
+      - Schema-valid publish_log artifact
+      - Export package contains the master and its derivatives
+      - Spend ledger reconciles with the run's receipts

@@ -255,6 +255,7 @@ If the folder has tracks, the proposal and asset stages should present them as o
 | `character-animation` | Local rigged cartoon characters and reusable character acting | beta |
 | `hybrid` | Source footage plus support visuals | production |
 | `avatar-spokesperson` | Presenter-led avatar or lip-sync videos | production |
+| `generated-takes` | Coin-billed still-to-motion takes (RunningHub Qwen to MiniMax H3) | beta |
 | `localization-dub` | Subtitle, dub, and translated variants | beta |
 | `framework-smoke` | Test: minimal 2-stage smoke test | test |
 
