@@ -34,8 +34,16 @@ def test_registry_discovers_runninghub_image(monkeypatch, isolated_tool_registry
 
 def test_no_key_marks_tool_unavailable(monkeypatch):
     monkeypatch.delenv("RUNNINGHUB_API_KEY", raising=False)
+    monkeypatch.delenv("RUNNINGHUB_PERSONAL_KEY", raising=False)
     assert RunningHubImage().get_status() == ToolStatus.UNAVAILABLE
     monkeypatch.setenv("RUNNINGHUB_API_KEY", "test-key")
+    assert RunningHubImage().get_status() == ToolStatus.AVAILABLE
+
+
+def test_personal_key_alone_is_enough(monkeypatch):
+    """Coin-first: the personal key alone must make the tool available."""
+    monkeypatch.delenv("RUNNINGHUB_API_KEY", raising=False)
+    monkeypatch.setenv("RUNNINGHUB_PERSONAL_KEY", "personal-key")
     assert RunningHubImage().get_status() == ToolStatus.AVAILABLE
 
 

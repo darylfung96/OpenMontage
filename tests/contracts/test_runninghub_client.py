@@ -171,9 +171,36 @@ def test_http_error_includes_status_and_body():
 
 def test_missing_key_reports_configured_false(monkeypatch):
     monkeypatch.delenv("RUNNINGHUB_API_KEY", raising=False)
+    monkeypatch.delenv("RUNNINGHUB_PERSONAL_KEY", raising=False)
     client = RunningHubClient()
     assert client.is_configured() is False
-    assert "RUNNINGHUB_API_KEY" in client.unavailable_reason()
+    assert "RUNNINGHUB_PERSONAL_KEY" in client.unavailable_reason()
+
+
+def test_personal_key_wins_over_shared_key(monkeypatch):
+    """Coin-first: the personal key beats the shared key whenever both exist."""
+    monkeypatch.setenv("RUNNINGHUB_PERSONAL_KEY", "personal-key")
+    monkeypatch.setenv("RUNNINGHUB_API_KEY", "shared-key")
+    client = RunningHubClient()
+    assert client.api_key == "personal-key"
+    assert client.key_kind == "personal"
+    assert client.bills_coins is True
+
+
+def test_shared_key_used_when_no_personal_key(monkeypatch):
+    monkeypatch.delenv("RUNNINGHUB_PERSONAL_KEY", raising=False)
+    monkeypatch.setenv("RUNNINGHUB_API_KEY", "shared-key")
+    client = RunningHubClient()
+    assert client.api_key == "shared-key"
+    assert client.key_kind == "shared"
+    assert client.bills_coins is False
+
+
+def test_explicit_key_argument_overrides_environment(monkeypatch):
+    monkeypatch.setenv("RUNNINGHUB_PERSONAL_KEY", "personal-key")
+    client = RunningHubClient(api_key="explicit-key")
+    assert client.api_key == "explicit-key"
+    assert client.key_kind == "explicit"
 
 
 def test_host_defaults_to_ai_site_and_env_override(monkeypatch):

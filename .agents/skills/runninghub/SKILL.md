@@ -5,7 +5,11 @@ description: Run published RunningHub AI Apps and Workflow API tasks — the Qwe
 
 # RunningHub
 
-Requires `RUNNINGHUB_API_KEY` in `.env`. Host defaults to
+Requires a key in `.env`: `RUNNINGHUB_PERSONAL_KEY` (membership key, bills RH
+Coins — the house default) with `RUNNINGHUB_API_KEY` (shared key, bills the
+account wallet) as the fallback. The client is coin-first: the personal key wins
+whenever both are present, and a wallet-billed run needs explicit approval.
+Host defaults to
 `https://www.runninghub.ai`; set `RUNNINGHUB_API_HOST=https://www.runninghub.cn`
 for the mainland site.
 
@@ -30,7 +34,10 @@ run the still stage first for text-to-video work.
 
 Billing follows the **key**, not the account: a personal (membership) key bills
 RH Coins, a shared key bills the account wallet (~$0.7/h of GPU runtime,
-measured at $0.0002/s). Use the personal key by default, never fire a paid take
+measured at $0.0002/s). The client resolves `RUNNINGHUB_PERSONAL_KEY` first and
+falls back to `RUNNINGHUB_API_KEY` — reading the shared key by default once billed
+a whole take to the wallet while coins sat unused, so coin-first is enforced in
+code. Use the personal key by default, never fire a paid take
 without explicit approval, and report the receipt after every run. Task
 receipts carry `consumeCoins` (coins path) or `consumeMoney` (wallet path);
 failures before render cost nothing, so a rejected node map is always free.

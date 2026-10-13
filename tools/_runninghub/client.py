@@ -40,6 +40,29 @@ _FAILED_STATUS = "FAILED"
 # Balance / credit wording seen when a wallet-billed task cannot be paid for.
 _INSUFFICIENT_BALANCE_MARKERS = ("balance", "insufficient", "credit", "余额")
 
+# Key resolution is coin-first. A personal (membership) key bills RH Coins, the
+# house default. A shared key bills the account wallet at the shared rate
+# (~$0.0002/s), which needs explicit per-batch approval. Reading the shared key
+# by default once billed a whole take to the wallet while coins sat unused
+# (hypit-first/notes/10-billing.md, 2026-09-22), so the personal key wins
+# whenever both are present.
+PERSONAL_KEY_ENV = "RUNNINGHUB_PERSONAL_KEY"
+SHARED_KEY_ENV = "RUNNINGHUB_API_KEY"
+
+
+def _resolve_key() -> Optional[str]:
+    """Return the key to bill with: personal first, shared as fallback."""
+    return os.environ.get(PERSONAL_KEY_ENV) or os.environ.get(SHARED_KEY_ENV)
+
+
+def _key_kind() -> str:
+    """Which key the environment resolved to: ``personal`` or ``shared``."""
+    if os.environ.get(PERSONAL_KEY_ENV):
+        return "personal"
+    if os.environ.get(SHARED_KEY_ENV):
+        return "shared"
+    return "none"
+
 
 class RunningHubError(Exception):
     """Raised when RunningHub rejects a call or a task fails.
@@ -94,7 +117,8 @@ class RunningHubClient:
         base_url: Optional[str] = None,
         session: Optional[requests.Session] = None,
     ) -> None:
-        self.api_key = api_key or os.environ.get("RUNNINGHUB_API_KEY")
+        self.api_key = api_key or _resolve_key()
+        self.key_kind = "explicit" if api_key else _key_kind()
         resolved = (
             base_url
             or os.environ.get("RUNNINGHUB_API_HOST")
@@ -110,14 +134,24 @@ class RunningHubClient:
     def is_configured(self) -> bool:
         return bool(self.api_key)
 
+    @property
+    def bills_coins(self) -> bool:
+        """True when the resolved key is the personal (membership) key.
+
+        Personal key -> RH Coins. Shared key -> account wallet, which needs
+        explicit per-batch approval before a paid run.
+        """
+        return self.key_kind == "personal"
+
     def unavailable_reason(self) -> str:
         """Human-readable explanation of why the client cannot be used."""
         if self.is_configured():
             return ""
         return (
-            "RUNNINGHUB_API_KEY is not set.\n"
-            "Add it to .env. A personal (membership) key bills RH Coins; "
-            "a shared key bills the account wallet."
+            "No RunningHub key is set.\n"
+            "Set RUNNINGHUB_PERSONAL_KEY (membership key, bills RH Coins - the "
+            "house default) or RUNNINGHUB_API_KEY (shared key, bills the account "
+            "wallet and needs explicit per-batch approval)."
         )
 
     def account_status(self) -> dict[str, Any]:
