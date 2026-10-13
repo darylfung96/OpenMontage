@@ -11,7 +11,7 @@ the user can actually decide on.
 | Layer | Resource | Purpose |
 |-------|----------|---------|
 | Schema | `schemas/artifacts/proposal_packet.schema.json` | Artifact validation |
-| Skill | `.agents/skills/runninghub/SKILL.md` | Chain node maps, limits, measured costs |
+| Skill | `.agents/skills/runninghub-chain/SKILL.md` | Chain node maps, limits, measured costs |
 | Skill | `skills/pipelines/generated-takes/executive-producer.md` | Billing and approval rules |
 | Tools | none at this stage | Nothing here is paid |
 

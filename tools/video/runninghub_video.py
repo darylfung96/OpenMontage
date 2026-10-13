@@ -86,7 +86,7 @@ class RunningHubVideo(BaseTool):
         "A personal (membership) key bills RH Coins; a shared key bills the account wallet. "
         f"The DMAD MiniMax H3 app is {DMAD_MINIMAX_H3_PAGE}."
     )
-    agent_skills = ["runninghub", "ai-video-gen"]
+    agent_skills = ["runninghub-chain", "ai-video-gen"]
 
     capabilities = ["image_to_video", "reference_to_video"]
     supports = {

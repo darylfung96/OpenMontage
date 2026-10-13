@@ -11,7 +11,7 @@ later stage needs must be decided now.
 | Layer | Resource | Purpose |
 |-------|----------|---------|
 | Schema | `schemas/artifacts/scene_plan.schema.json` | Artifact validation |
-| Skill | `.agents/skills/runninghub/SKILL.md` | Node maps, substrate and frame rules |
+| Skill | `.agents/skills/runninghub-chain/SKILL.md` | Node maps, substrate and frame rules |
 | Prior artifacts | `state.artifacts["proposal"]["proposal_packet"]` | Approved concepts, engine, delivery shape |
 
 ## Process

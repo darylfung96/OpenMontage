@@ -11,7 +11,7 @@ money, and the only one where the order of operations is non-negotiable.
 | Layer | Resource | Purpose |
 |-------|----------|---------|
 | Schema | `schemas/artifacts/asset_manifest.schema.json` | Artifact validation |
-| Skill | `.agents/skills/runninghub/SKILL.md` | Node maps, limits, billing behaviour |
+| Skill | `.agents/skills/runninghub-chain/SKILL.md` | Node maps, limits, billing behaviour |
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]` | The take list, frames, stills, steps |
 | Tools | `runninghub_image`, `runninghub_video` | The chain |
 

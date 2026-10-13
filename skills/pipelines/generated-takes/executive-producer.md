@@ -20,7 +20,7 @@ rebuild this pipeline's gates inside a run; they are the control surface.
 
 ## Chain Contract (Binding)
 
-Read `.agents/skills/runninghub/SKILL.md` before planning or firing anything. It owns
+Read `.agents/skills/runninghub-chain/SKILL.md` before planning or firing anything. It owns
 the node maps, limits, and measured costs. The rules that must not be broken:
 
 - **Stills first, then motion.** `runninghub_image` (Qwen-Image-2.1 edit) produces the

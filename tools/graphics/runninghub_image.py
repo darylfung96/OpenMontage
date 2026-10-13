@@ -67,7 +67,7 @@ class RunningHubImage(BaseTool):
         "A personal (membership) key bills RH Coins; a shared key bills the account wallet. "
         f"The Qwen-Image-2.1 edit app is {QWEN_IMAGE_EDIT_PAGE}."
     )
-    agent_skills = ["runninghub"]
+    agent_skills = ["runninghub-chain"]
 
     capabilities = ["generate_image", "image_edit", "precise_edit"]
     supports = {

@@ -1,9 +1,9 @@
 ---
-name: runninghub
-description: Run published RunningHub AI Apps and Workflow API tasks — the Qwen-Image-2.1 still stage and the DMAD MiniMax H3 motion stage of the runninghub chain, plus any app addressed by webappId. Use when generating or editing stills on RunningHub, animating a still with MiniMax H3, or reasoning about RH Coin vs wallet billing on that account.
+name: runninghub-chain
+description: The RunningHub video chain — Qwen-Image-2.1 stills (reference-conditioned edit) then DMAD MiniMax H3 motion (steps=8, frames explicit, 362-frame ceiling) — with coin-vs-wallet billing and the free node probe. Use when generating or editing stills on RunningHub, animating a still with MiniMax H3, or reasoning about RH Coin vs wallet billing on that account.
 ---
 
-# RunningHub
+# RunningHub chain
 
 Requires a key in `.env`: `RUNNINGHUB_PERSONAL_KEY` (membership key, bills RH
 Coins — the house default) with `RUNNINGHUB_API_KEY` (shared key, bills the
