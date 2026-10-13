@@ -1,11 +1,10 @@
 {
   "name": "openmontage",
   "version": "0.1.0",
-  "description": "OpenMontage — the agentic video production system. This manifest lets the repo install as a pi package, exposing the RunningHub chain skills (Qwen-Image-2.1 stills to DMAD MiniMax H3 motion) outside the checkout.",
+  "description": "OpenMontage — the agentic video production system. This manifest lets the repo install as a pi package, exposing the DMAD MiniMax H3 motion skill outside the checkout.",
   "license": "AGPL-3.0",
   "pi": {
     "skills": [
-      ".agents/skills/runninghub",
       ".agents/skills/minimax-h3"
     ]
   }
